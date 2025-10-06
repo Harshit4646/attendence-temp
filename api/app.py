@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add parent directory to sys.path to import sibling modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from flask import Flask, render_template, request, redirect, jsonify, session
 import register_face
 from attendance import attendance
@@ -262,4 +268,5 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
