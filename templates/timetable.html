@@ -142,7 +142,7 @@
     <script>
         async function fetchTimetable() {
             try {
-                const response = await fetch('/timetable');
+                const response = await fetch('/api/timetable');
                 if (!response.ok) throw new Error('Failed to fetch timetable');
                 return await response.json();
             } catch (err) {
@@ -207,5 +207,6 @@
         });
     </script>
 </body>
+
 
 </html>
