@@ -176,7 +176,7 @@
                     };
 
                     try {
-                        const res = await fetch('/verify_and_mark_attendance', {
+                        const res = await fetch('/api/verify_and_mark_attendance', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(formData)
@@ -215,5 +215,6 @@
         }
     </script>
 </body>
+
 
 </html>
