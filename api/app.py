@@ -17,7 +17,7 @@ def convert_timedelta_to_str(value):
         return f"{hours:02}:{minutes:02}:{seconds:02}"
     return value
 
-@app.route('/mark_attendance_by_camera',methods=['GET','POST'])
+@app.route('/api/mark_attendance_by_camera',methods=['GET','POST'])
 def mark_attendance():
     try:
         data=request.get_json()
@@ -29,7 +29,7 @@ def mark_attendance():
     except Exception:
         pass
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         data = request.get_json()
@@ -58,7 +58,7 @@ def register():
             return "Registration failed", 500
     return render_template('register.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
@@ -80,13 +80,13 @@ def login():
             error = value
     return render_template('login.html', error=error)
 
-@app.route('/student_home_page')
+@app.route('/api/student_home_page')
 def student_home_page():
     if 'username' not in session:
         return redirect('/login')
     return render_template('student_home_page.html')
 
-@app.route('/student_details')
+@app.route('/api/student_details')
 def student_details():
     username = session.get('username')
     if not username:
@@ -96,7 +96,7 @@ def student_details():
         student['dob'] = student['dob'].strftime("%Y-%m-%d")
     return jsonify(student)
 
-@app.route('/attendance/today')
+@app.route('/api/attendance/today')
 def attendance_today_route():
     username = session.get('username')
     if not username:
@@ -112,7 +112,7 @@ def attendance_today_route():
         data = convert_row(data)
     return jsonify(data)
 
-@app.route('/attendance/semester')
+@app.route('/api/attendance/semester')
 def attendance_semester_route():
     username = session.get('username')
     if not username:
@@ -120,7 +120,7 @@ def attendance_semester_route():
     data = attendance_supabase.get_semester_attendance(username)
     return jsonify(data)
 
-@app.route('/attendance/datewise')
+@app.route('/api/attendance/datewise')
 def attendance_datewise_route():
     username = session.get('username')
     if not username:
@@ -131,13 +131,13 @@ def attendance_datewise_route():
     data = attendance_supabase.get_datewise_attendance(roll_no, startdate, enddate)
     return jsonify(data)
 
-@app.route('/teacher_home_page')
+@app.route('/api/teacher_home_page')
 def teacher_home_page():
     if 'teacher_Username' not in session:
         return redirect('/login')
     return render_template('teacher_home_page.html')
 
-@app.route('/classes',methods=['GET'])
+@app.route('/api/classes',methods=['GET'])
 def classes():
     username = session.get('teacher_Username')
     if not username:
@@ -145,11 +145,11 @@ def classes():
     classes_list = attendance_supabase.classes(username)
     return jsonify(classes_list)
 
-@app.route('/mark_attendance')
+@app.route('/api/mark_attendance')
 def mark():
     return render_template('mark_attendance.html')
 
-@app.route('/student_attendance', methods=['GET', 'POST'])
+@app.route('/api/student_attendance', methods=['GET', 'POST'])
 def student_attendance():
     if request.method == 'POST':
         data_dict = request.get_json()
@@ -160,7 +160,7 @@ def student_attendance():
         return jsonify(data)
     return jsonify({"error": "GET method not supported"}), 405
 
-@app.route('/details', methods=['POST'])
+@app.route('/api/details', methods=['POST'])
 def details():
     data = request.get_json()
     if not data:
@@ -169,7 +169,7 @@ def details():
     session['end_time'] = data.get('end_time')
     return jsonify({'message': 'Data sent successfully'})
 
-@app.route('/lecture', methods=['GET','POST'])
+@app.route('/api/lecture', methods=['GET','POST'])
 def lecture():
     start_time = session.get('start_time')
     end_time = session.get('end_time')
@@ -179,19 +179,19 @@ def lecture():
     session['subject_name'] = lecture_details.get('subject_name')
     return jsonify(lecture_details)
 
-@app.route('/students')
+@app.route('/api/students')
 def students():
     students_list = attendance_supabase.students()
     return jsonify(students_list)
 
-@app.route('/attendance', methods=['GET','POST'])
+@app.route('/api/attendance', methods=['GET','POST'])
 def attendance_route():
     start_time = session.get('start_time')
     end_time = session.get('end_time')
     attendance_list = attendance_supabase.get_today_attendance(start_time, end_time)
     return jsonify(attendance_list)
 
-@app.route('/save_attendance', methods=['POST'])
+@app.route('/api/save_attendance', methods=['POST'])
 def save_attendance():
     data = request.get_json()
     if not data:
@@ -201,7 +201,7 @@ def save_attendance():
     attendance_supabase.mark_attendence(attendance_data, session.get('subject_name'),session.get('start_time'), session.get('end_time'),date, 'Manual')
     return jsonify({'message': 'Saved'})
 
-@app.route('/update_attendance', methods=['POST'])
+@app.route('/api/update_attendance', methods=['POST'])
 def update_attendance():
     data = request.get_json()
     if not data:
@@ -210,16 +210,16 @@ def update_attendance():
     attendance_supabase.update_attendance(data, session.get('start_time'), session.get('end_time'), date, 'Manual')
     return jsonify({'message': 'Updated'})
 
-@app.route('/time_table')
+@app.route('/api/time_table')
 def time_table():
     return render_template('timetable.html',)
 
-@app.route('/timetable')
+@app.route('/api/timetable')
 def timetable():
     time_table=attendance_supabase.get_time_table()
     return jsonify(time_table)
 
-@app.route('/generate_qr_code', methods=['POST'])
+@app.route('/api/generate_qr_code', methods=['POST'])
 def generate_qr_code_route():
     print("generate_qr_code")
     data = request.get_json()
@@ -246,11 +246,11 @@ def generate_qr_code_route():
         'attendance_url': attendance_url,
     })
 
-@app.route('/attendance_form')
+@app.route('/api/attendance_form')
 def attendance_form():
     return render_template('attendance_form.html')
 
-@app.route('/verify_and_mark_attendance',methods=['POST'])
+@app.route('/api/verify_and_mark_attendance',methods=['POST'])
 def verify_and_mark():
     data=request.get_json()
     start = datetime.strptime(data.get('start_time'), "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).astimezone()
@@ -262,3 +262,4 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
