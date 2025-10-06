@@ -7,3 +7,5 @@ dlib
 face_recognition
 supabase
 bcrypt
+qrcode
+pillow
