@@ -5,9 +5,11 @@ import attendance_supabase
 from datetime import timedelta, datetime, timezone
 from qr_attendence import generate_qr_code
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = "12345678"
+CORS(app, origins=["https://your-vercel-frontend-domain.vercel.app"])
 
 def convert_timedelta_to_str(value):
     if isinstance(value, timedelta):
@@ -262,6 +264,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
