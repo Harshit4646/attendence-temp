@@ -4,7 +4,7 @@ gunicorn
 opencv-python-headless
 numpy
 dlib
-face_recognition
+face-recognition
 supabase
 bcrypt
 qrcode
