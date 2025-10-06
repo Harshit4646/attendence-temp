@@ -5,3 +5,5 @@ opencv-python
 numpy
 dlib
 face_recognition
+supabase
+bcrypt
