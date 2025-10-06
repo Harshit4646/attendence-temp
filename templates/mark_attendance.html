@@ -204,19 +204,19 @@
         let initialAttendance = {};
 
         async function fetchLectureInfo() {
-            const res = await fetch("/lecture");
+            const res = await fetch("/api/lecture");
             if (!res.ok) throw new Error("Failed to fetch lecture info");
             return await res.json();
         }
 
         async function fetchStudents() {
-            const res = await fetch("/students");
+            const res = await fetch("/api/students");
             if (!res.ok) throw new Error("Failed to fetch students");
             return await res.json();
         }
 
         async function fetchAttendance() {
-            const res = await fetch("/attendance");
+            const res = await fetch("/api/attendance");
             if (!res.ok) throw new Error("Failed to fetch attendance");
             return await res.json();
         }
@@ -278,7 +278,7 @@
                 return;
             }
             try {
-                const res = await fetch("/save_attendance", {
+                const res = await fetch("/api/save_attendance", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(changedAttendance)
@@ -307,7 +307,7 @@
                 return;
             }
             try {
-                const res = await fetch("/update_attendance", {
+                const res = await fetch("/api/update_attendance", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(changedAttendance)
@@ -377,5 +377,6 @@
         initializePage();
     </script>
 </body>
+
 
 </html>
