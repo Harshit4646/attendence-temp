@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Timetable</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            margin: 0;
+            padding: 40px 0;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 3rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        #timetable {
+            width: 90%;
+            max-width: 900px;
+        }
+
+        .day-section {
+            margin-bottom: 40px;
+            background: #ffffffcc;
+            border-radius: 15px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            padding: 30px 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .day-section:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        .day-title {
+            font-size: 1.8em;
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-left: 6px solid #3b82f6;
+            padding-left: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .timetable-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .timetable-table th,
+        .timetable-table td {
+            text-align: center;
+            padding: 15px 10px;
+            font-weight: 500;
+            border-radius: 10px;
+        }
+
+        .timetable-table th {
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 1.1em;
+            letter-spacing: 0.05em;
+        }
+
+        .timetable-table tbody tr {
+            background: white;
+            box-shadow: 0 7px 15px rgba(37, 99, 235, 0.15);
+            transition: box-shadow 0.3s ease;
+            cursor: default;
+        }
+
+        .timetable-table tbody tr:hover {
+            box-shadow: 0 14px 25px rgba(37, 99, 235, 0.3);
+            background: #eff6ff;
+        }
+
+        .timetable-table tbody td {
+            color: #334155;
+            font-size: 1em;
+        }
+
+        .error-msg {
+            color: #b00;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 30px;
+            }
+
+            .day-section {
+                padding: 20px 15px;
+            }
+
+            .day-title {
+                font-size: 1.4em;
+            }
+
+            .timetable-table th,
+            .timetable-table td {
+                padding: 10px 8px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Student Timetable</h1>
+    <div id="timetable">
+        <div class="error-msg" id="error-msg"></div>
+    </div>
+    <script>
+        async function fetchTimetable() {
+            try {
+                const response = await fetch('/timetable');
+                if (!response.ok) throw new Error('Failed to fetch timetable');
+                return await response.json();
+            } catch (err) {
+                document.getElementById('error-msg').textContent = err.message;
+                return null;
+            }
+        }
+
+        function renderTimetable(data) {
+            const container = document.getElementById('timetable');
+            container.innerHTML = '';
+
+            if (!data || Object.keys(data).length === 0) {
+                container.innerHTML = '<div class="error-msg">No timetable data found.</div>';
+                return;
+            }
+
+            Object.keys(data).forEach(day => {
+                const section = document.createElement('div');
+                section.className = 'day-section';
+
+                const title = document.createElement('div');
+                title.className = 'day-title';
+                title.textContent = day;
+                section.appendChild(title);
+
+                const table = document.createElement('table');
+                table.className = 'timetable-table';
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                <tr>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Subject</th>
+                    <th>Faculty</th>
+                </tr>
+            `;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                data[day].forEach(lecture => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${lecture.start}</td>
+                    <td>${lecture.end}</td>
+                    <td>${lecture.subject}</td>
+                    <td>${lecture.faculty}</td>
+                `;
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                section.appendChild(table);
+                container.appendChild(section);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const data = await fetchTimetable();
+            renderTimetable(data);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 2.5rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(21, 67, 232, 0.3);
+      width: 340px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .login-container:hover {
+      box-shadow: 0 20px 50px rgba(21, 67, 232, 0.6);
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 700;
+      color: #1f2a63;
+      letter-spacing: 1.2px;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #444e72;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border: 1.8px solid #aac4f6;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1rem;
+      color: #1f2a63;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #3452ff;
+      box-shadow: 0 0 5px rgba(52, 82, 255, 0.5);
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1.5rem;
+      color: #1f2a63;
+    }
+
+    .radio-group label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+      margin-right: 6px;
+      accent-color: #3452ff;
+      cursor: pointer;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #3452ff;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 6px 15px rgba(52, 82, 255, 0.4);
+    }
+
+    button:hover {
+      background-color: #1f32cc;
+      box-shadow: 0 7px 18px rgba(31, 50, 204, 0.6);
+    }
+
+    button#registerButton {
+      margin-top: 10px;
+      background-color: #f4f6f9;
+      color: #3452ff;
+      font-weight: 600;
+      box-shadow: none;
+      border: 2px solid #3452ff;
+    }
+
+    button#registerButton:hover {
+      background-color: #e6eefb;
+      color: #1f32cc;
+      border-color: #1f32cc;
+    }
+
+    #message,
+    .server-error {
+      margin-top: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      min-height: 1.3em;
+    }
+
+    #message {
+      color: #d6336c;
+    }
+
+    .server-error {
+      color: #e03e2f;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm" method="POST" action="/login" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" />
+      </div>
+      <div class="radio-group">
+        <label><input type="radio" name="role" value="student" required /> Student</label>
+        <label><input type="radio" name="role" value="teacher" required /> Teacher</label>
+      </div>
+      <button type="submit">Login</button><br /><br />
+      <button type="button" id="registerButton">Register</button>
+      <div id="message"></div>
+      {% if error %}
+      <div class="server-error">{{ error }}</div>
+      {% endif %}
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+    const registerButton = document.getElementById('registerButton');
+    form.addEventListener('submit', function (event) {
+      message.textContent = '';
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      const roles = form.querySelectorAll('input[name="role"]');
+      let roleSelected = false;
+      roles.forEach(radio => { if (radio.checked) roleSelected = true; });
+
+      if (!username) {
+        event.preventDefault();
+        message.textContent = 'Please enter your username.';
+        form.username.focus();
+        return;
+      }
+      if (!password) {
+        event.preventDefault();
+        message.textContent = 'Please enter your password.';
+        form.password.focus();
+        return;
+      }
+      if (!roleSelected) {
+        event.preventDefault();
+        message.textContent = 'Please select your role.';
+        return;
+      }
+      message.textContent = '';
+    });
+    registerButton.addEventListener('click', function () {
+      window.location.href = '/register';
+    });
+  </script>
+</body>
+
+</html>

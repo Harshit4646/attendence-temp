@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registration Page</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    /* Container to enable scroll when viewport is small */
+    .wrapper {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 36px 40px;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.25);
+      box-sizing: border-box;
+      overflow-y: auto;
+      max-height: 90vh;
+      /* Prevent container from exceeding viewport */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Center content vertically if more space available */
+    .wrapper-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Heading */
+    h2 {
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #3b3f6f;
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+      user-select: none;
+    }
+
+    /* Form label styles */
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: #4a4a6a;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Inputs and selects */
+    input,
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border: 1.8px solid #d1d5db;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 1rem;
+      color: #1e293b;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-weight: 500;
+      user-select: text;
+    }
+
+    input::placeholder {
+      color: #a0aec0;
+      font-weight: 400;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+      background-color: #eef2ff;
+    }
+
+    /* Submit button styles */
+    button {
+      width: 100%;
+      background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+      border: none;
+      padding: 16px 0;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease, filter 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.6);
+      margin-top: auto;
+      /* Push to bottom if form gets tall */
+    }
+
+    button:hover {
+      filter: brightness(110%);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.8);
+      transform: translateY(-3px);
+    }
+
+    button:active {
+      filter: brightness(95%);
+      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.5);
+      transform: translateY(0);
+    }
+
+    /* Message area */
+    #message {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      min-height: 1.3em;
+      letter-spacing: 0.02em;
+      color: #ef4444;
+      /* Default red for errors */
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    #message.success {
+      color: #22c55e;
+      /* Green */
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 420px) {
+      .wrapper {
+        padding: 30px 24px;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
+
+      input,
+      select {
+        font-size: 0.95rem;
+        padding: 12px 14px;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 14px 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="wrapper-content">
+      <form class="registration-form" id="registrationForm" novalidate>
+        <h2>Register</h2>
+
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name" required autocomplete="name" />
+
+        <label for="rollno">Roll No.</label>
+        <input type="text" id="rollno" name="rollno" placeholder="Your roll number" required />
+
+        <label for="branch">Branch</label>
+        <select id="branch" name="branch" required>
+          <option value="" disabled selected>Select branch</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Mechanical">Mechanical</option>
+          <option value="Civil">Civil</option>
+          <option value="Electrical">Electrical</option>
+        </select>
+
+        <label for="section">Section</label>
+        <input type="text" id="section" name="section" placeholder="Your section" required />
+
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="Your phone number" pattern="[0-9]{10}" required
+          title="Please enter exactly 10 digits." autocomplete="tel" />
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" name="dob" required />
+
+        <label for="username">Admission Number</label>
+        <input type="text" id="username" name="username" placeholder="Choose a username" required
+          autocomplete="username" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Choose a password" required
+          autocomplete="new-password" />
+
+        <button type="submit">Submit</button>
+        <div id="message"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const messageDiv = document.getElementById('message');
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      messageDiv.textContent = '';
+      messageDiv.style.color = '';
+
+      if (!form.checkValidity()) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Please complete all required fields correctly.';
+        form.reportValidity();
+        return;
+      }
+
+      const formData = {
+        name: form.name.value.trim(),
+        rollno: form.rollno.value.trim(),
+        branch: form.branch.value,
+        section: form.section.value.trim(),
+        phone: form.phone.value.trim(),
+        dob: form.dob.value,
+        username: form.username.value.trim(),
+        password: form.password.value
+      };
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          const result = await response.text();
+          messageDiv.style.color = 'green';
+          messageDiv.textContent = result;
+          form.reset();
+        } else {
+          const errorText = await response.text();
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = errorText || 'Failed to register. Please try again.';
+        }
+      } catch (error) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Error: ' + error.message;
+      }
+    });
+  </script>
+</body>
+
+</html>

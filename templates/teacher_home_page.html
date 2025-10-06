@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Teacher Class Schedule & Attendance</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f9;
+      margin: 0;
+      padding: 30px;
+      color: #1e293b;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #1e40af;
+      user-select: none;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      margin-bottom: 40px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgb(0 0 0 / 0.1);
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      text-align: center;
+      font-size: 1rem;
+      user-select: text;
+    }
+
+    th {
+      background: #2866b0;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      letter-spacing: 0.05em;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    tbody tr {
+      background: #f9fafb;
+      transition: background-color 0.3s ease;
+      border-radius: 10px;
+      user-select: text;
+    }
+
+    tbody tr:hover {
+      background: #e6f0fc;
+    }
+
+    tbody td {
+      border-top: 1px solid #d0d4dc;
+      border-left: none;
+      border-right: none;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      color: #475569;
+    }
+
+    button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      background: #2866b0;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      user-select: none;
+      margin: 0 4px;
+      box-shadow: 0 6px 15px rgba(40, 102, 176, 0.4);
+    }
+
+    button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: #f1f1f1;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #1f4f8a;
+      box-shadow: 0 8px 22px rgba(31, 79, 138, 0.6);
+    }
+
+    .attendance-area {
+      background: #fff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      max-width: 420px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+      user-select: none;
+    }
+
+    .attendance-area h3 {
+      font-weight: 700;
+      color: #1e40af;
+      text-align: center;
+      margin-bottom: 18px;
+      user-select: none;
+    }
+
+    .attendance-area input {
+      padding: 10px 14px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1.8px solid #ddd;
+      margin-right: 12px;
+      width: calc(100% - 140px);
+      max-width: 220px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+      color: #334155;
+    }
+
+    .attendance-area input:focus {
+      outline: none;
+      border-color: #2866b0;
+      box-shadow: 0 0 7px rgba(40, 102, 176, 0.6);
+    }
+
+    #student-result {
+      margin-top: 14px;
+      color: #2866b0;
+      font-weight: 600;
+      min-height: 1.5em;
+      word-wrap: break-word;
+      user-select: text;
+    }
+
+    @media (max-width: 520px) {
+      .attendance-area input {
+        width: 100%;
+        margin-bottom: 12px;
+        margin-right: 0;
+      }
+
+      .attendance-area button {
+        width: 100%;
+      }
+
+      button {
+        margin: 6px 0;
+        width: 100%;
+      }
+
+      tbody td,
+      th {
+        padding: 10px 6px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Class Schedule</h2>
+  <table id="schedule-table" aria-label="Class schedule">
+    <thead>
+      <tr>
+        <th scope="col">Section</th>
+        <th scope="col">Class Name</th>
+        <th scope="col">Start Time</th>
+        <th scope="col">End Time</th>
+        <th scope="col">Mark Attendance</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="attendance-area" aria-live="polite" aria-atomic="true">
+    <h3>Check Student Attendance</h3>
+    <input type="text" id="roll-input" placeholder="Enter Roll Number" aria-label="Roll Number" />
+    <button onclick="checkAttendance()">Check Attendance</button>
+    <div id="student-result" style="margin-top:12px;color:#2866b0;font-weight:600;"></div>
+  </div>
+
+  <script>
+    async function fetchSchedule() {
+      try {
+        const res = await fetch('/classes');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const classSchedule = await res.json();
+        renderScheduleTable(classSchedule);
+      } catch (error) {
+        const tbody = document.querySelector('#schedule-table tbody');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Failed to load schedule.</td></tr>`;
+        console.error('Error fetching schedule:', error);
+      }
+    }
+
+    function renderScheduleTable(classSchedule) {
+      const now = new Date();
+      const tbody = document.querySelector('#schedule-table tbody');
+      tbody.innerHTML = '';
+      if (!classSchedule.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No classes scheduled.</td></tr>`;
+        return;
+      }
+      classSchedule.forEach((cls, idx) => {
+        const [startHour, startMin] = cls.start.split(':');
+        const [endHour, endMin] = cls.end.split(':');
+
+        const classStart = new Date();
+        classStart.setHours(parseInt(startHour, 10), parseInt(startMin, 10), 0, 0);
+        const classEnd = new Date();
+        classEnd.setHours(parseInt(endHour, 10), parseInt(endMin, 10), 0, 0);
+        const now = new Date();
+
+        const isAfterClass = now > classEnd;
+        const isDuringClass = now >= classStart && now <= classEnd;
+        const markAttendanceEnabled = isAfterClass;
+        const cameraQRButtonsEnabled = isDuringClass;
+        const btnId = `attend-btn-${idx}`;
+        const btnCameraId = `camera-btn-${idx}`;
+        const btnQRId = `qr-btn-${idx}`;
+
+        tbody.innerHTML += `
+      <tr>
+        <td>${cls.section}</td>
+        <td>${cls.className}</td>
+        <td>${cls.start}</td>
+        <td>${cls.end}</td>
+        <td>
+          <button id="${btnId}" ${markAttendanceEnabled ? '' : 'disabled'}
+            onclick="markAttendance('${cls.start}','${cls.end}')">
+            Mark Attendance
+          </button>
+          <button id="${btnCameraId}" ${cameraQRButtonsEnabled ? '' : 'disabled'}
+            onclick="markAttendanceByCamera('${cls.start}','${cls.end}','${cls.className}')">
+            Mark Attendance by Camera
+          </button>
+          <button id="${btnQRId}" ${cameraQRButtonsEnabled ? '' : 'disabled'}
+            onclick="markAttendanceByQR('${cls.start}','${cls.end}','${cls.className}')">
+            Mark Attendance by QR Code
+          </button>
+        </td>
+      </tr>
+    `;
+      });
+    }
+
+    async function markAttendanceByCamera(start, end, subject) {
+      try {
+        const response = await fetch('/mark_attendance_by_camera', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ start_time: start, end_time: end, subject_name: subject })
+        });
+        if (!response.ok) throw new Error('Camera API call failed');
+        window.location.href = '/mark_attendance_camera';
+      } catch (error) {
+        alert('Error calling camera API: ' + error.message);
+      }
+    }
+
+    async function markAttendanceByQR(start, end, subject) {
+      try {
+        navigator.geolocation.getCurrentPosition(async pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const response = await fetch('/generate_qr_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start_time: start, end_time: end, subject_name: subject})
+          });
+          if (!response.ok) throw new Error('Failed to generate QR code');
+
+          const data = await response.json();
+          const qrPage = window.open('', '_blank', 'width=400,height=500');
+          qrPage.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head><title>Attendance QR Code</title>
+      <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+        img { width: 250px; height: 250px; margin: 20px auto; }
+        h2 { color: #1e40af; }
+        p { font-size: 16px; }
+      </style>
+      </head>
+      <body>
+        <h2>Scan this QR Code to Mark Attendance</h2>
+        <img src="${data.qr_url}" alt="Attendance QR Code" />
+        <p>Class: ${subject}</p>
+        <p>Allowed Time: ${start} to ${end}</p>
+        <p>QR directs students to attendance form for this session.</p>
+      </body>
+      </html>
+    `);
+        });
+      } catch (error) {
+        alert('Error generating QR code: ' + error.message);
+      }
+    }
+
+    async function markAttendance(start, end) {
+      const lectureDetails = {
+        start_time: start,
+        end_time: end,
+      };
+
+      try {
+        const response = await fetch('/details', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lectureDetails)
+        });
+        if (!response.ok) throw new Error("Failed to send lecture details");
+        window.location.href = '/mark_attendance';
+      } catch (error) {
+        alert("Error sending lecture details: " + error.message);
+      }
+    }
+
+    async function checkAttendance() {
+      const roll = document.getElementById('roll-input').value.trim();
+      const output = document.getElementById('student-result');
+      if (!roll) {
+        output.textContent = "Please enter a roll number.";
+        return;
+      }
+      output.textContent = "Checking...";
+
+      try {
+        const res = await fetch('/student_attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 'roll': roll })
+        });
+
+        if (!res.ok) {
+          output.textContent = `No student found with roll number ${roll}`;
+          return;
+        }
+
+        const student = await res.json();
+
+        let tableHTML = `
+          <div style="margin-top: 10px;">
+            <strong>Name:</strong> ${student.name}
+            <table style="width:100%; margin-top:10px; border-collapse: collapse; background:#fff;" aria-label="Attendance records">
+              <thead>
+                <tr style="background:#2866b0; color:#fff;">
+                  <th style="padding:8px; border: 1px solid #ddd;">Date</th>
+                  <th style="padding:8px; border: 1px solid #ddd;">Subject</th>
+                  <th style="padding:8px; border: 1px solid #ddd;">Start Time</th>
+                  <th style="padding:8px; border: 1px solid #ddd;">End Time</th>
+                  <th style="padding:8px; border: 1px solid #ddd;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        if (student.records.length === 0) {
+          tableHTML += `
+            <tr>
+              <td colspan="5" style="padding:10px; text-align:center;">No attendance records found.</td>
+            </tr>`;
+        } else {
+          student.records.forEach(record => {
+            tableHTML += `
+              <tr>
+                <td style="padding:8px; border: 1px solid #ddd;">${record.date}</td>
+                <td style="padding:8px; border: 1px solid #ddd;">${record.subject_name}</td>
+                <td style="padding:8px; border: 1px solid #ddd;">${record.start_time}</td>
+                <td style="padding:8px; border: 1px solid #ddd;">${record.end_time}</td>
+                <td style="padding:8px; border: 1px solid #ddd;">${record.status}</td>
+              </tr>
+            `;
+          });
+        }
+
+        tableHTML += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        output.innerHTML = tableHTML;
+
+      } catch (error) {
+        output.textContent = "Server error or unreachable";
+        console.error('Error fetching student attendance:', error);
+      }
+    }
+    fetchSchedule();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Attendance Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 2rem;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem 3rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 700;
+      font-size: 2.25rem;
+      color: #334155;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+
+    .student-info {
+      background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+      padding: 25px 30px;
+      border-radius: 16px;
+      box-shadow:
+        0 8px 24px rgba(99, 102, 241, 0.2),
+        inset 0 0 15px rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      color: #3730a3;
+      user-select: none;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.02em;
+      transition: box-shadow 0.45s ease;
+    }
+
+    .student-info:hover {
+      box-shadow:
+        0 12px 40px rgba(99, 102, 241, 0.35),
+        inset 0 0 20px rgba(255, 255, 255, 1);
+      transform: translateY(-8px);
+    }
+
+    .student-info strong {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+      color: #1e40af;
+    }
+
+    .student-info strong::after {
+      content: '•';
+      color: #6366f1;
+      font-weight: 900;
+      margin-left: 8px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .student-info p {
+      margin: 8px 0;
+      line-height: 1.5;
+      font-weight: 600;
+      user-select: text;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+      }
+    }
+
+
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.8rem 2rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+      box-shadow: 0 6px 15px rgba(59, 130, 246, 0.7);
+      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+      user-select: none;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+      color: #e2e8f0;
+    }
+
+    button:hover:not(:disabled) {
+      background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+      box-shadow: 0 8px 20px rgba(30, 64, 175, 0.85);
+      transform: translateY(-3px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 5px 12px rgba(30, 64, 175, 0.6);
+    }
+
+    #attendance-content {
+      margin-top: 1rem;
+      user-select: text;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      width: 100%;
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #334155;
+      box-sizing: border-box;
+    }
+
+    th,
+    td {
+      padding: 0.85rem 1rem;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    th {
+      background-color: #3b82f6;
+      color: white;
+      font-weight: 700;
+      border-radius: 8px 8px 0 0;
+      letter-spacing: 0.05em;
+      user-select: none;
+    }
+
+    tbody tr {
+      background: #f1f5f9;
+      transition: background-color 0.3s;
+      border-radius: 0 0 8px 8px;
+    }
+
+    tbody tr:hover {
+      background: #e0e7ff;
+    }
+
+    tbody td {
+      border-top: 1px solid #cbd5e1;
+      border-left: none;
+      border-right: none;
+      color: #475569;
+    }
+
+    .progress-bar-wrapper {
+      background-color: #e2e8f0;
+      border-radius: 24px;
+      margin-top: 0.6rem;
+      height: 26px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgb(255 255 255 / 0.4);
+    }
+
+    .progress-bar {
+      height: 26px;
+      border-radius: 24px 0 0 24px;
+      background-color: #22c55e;
+      width: 0%;
+      line-height: 26px;
+      color: white;
+      font-weight: 700;
+      text-align: center;
+      transition: width 0.6s ease-in-out;
+      user-select: none;
+    }
+
+    .date-picker {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    .date-picker label {
+      font-weight: 600;
+      color: #334155;
+      font-size: 1rem;
+      margin-right: 0.6rem;
+    }
+
+    .date-picker input {
+      padding: 8px 12px;
+      font-size: 1rem;
+      width: 180px;
+      border: 1.8px solid #94a3b8;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+      user-select: text;
+    }
+
+    .date-picker input:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+
+      .container {
+        padding: 2rem 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .buttons {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      button {
+        width: 100%;
+        min-width: unset;
+      }
+
+      .date-picker input {
+        width: 100%;
+        max-width: 100%;
+        margin: 0.5rem 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" aria-live="polite" aria-atomic="true">
+    <h1>Student Attendance Dashboard</h1>
+    <div class="student-info" id="studentInfo">Loading student details...</div>
+    <div class="buttons">
+      <button id="btnToday">Today Attendance</button>
+      <button id="btnSemester">Semester Attendance</button>
+      <button id="btnDateWise">Date Wise Attendance</button>
+      <button type="button" onclick="window.location.href='/time_table'">Time Table</button>
+    </div>
+    <div id="attendance-content"></div>
+  </div>
+
+  <script>
+    const studentInfoDiv = document.getElementById('studentInfo');
+    const attendanceContent = document.getElementById('attendance-content');
+    const btnToday = document.getElementById('btnToday');
+    const btnSemester = document.getElementById('btnSemester');
+    const btnDateWise = document.getElementById('btnDateWise');
+
+    let username = null;
+
+    fetch('/student_details')
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          studentInfoDiv.textContent = data.error;
+          disableButtons();
+          return;
+        }
+        username = data.username;
+        studentInfoDiv.innerHTML = `
+          <strong>Name:</strong> ${data.name} <br/>
+          <strong>Roll Number:</strong> ${data.roll_no} <br/>
+          <strong>Branch:</strong> ${data.branch} <br/>
+          <strong>Section:</strong> ${data.section} <br/>
+          <strong>Phone Number:</strong> ${data.phone_no} <br/>
+          <strong>D.O.B:</strong> ${data.dob} <br/>
+          <strong>Admission Number:</strong> ${data.username}
+        `;
+      })
+      .catch(error => {
+        studentInfoDiv.textContent = 'Failed to load student details.';
+        console.error('Error fetching student details:', error);
+        disableButtons();
+      });
+
+    function disableButtons() {
+      btnToday.disabled = true;
+      btnSemester.disabled = true;
+      btnDateWise.disabled = true;
+    }
+
+    function createAttendanceTable(records) {
+      if (!records || records.length === 0) return '<p>No attendance records found.</p>';
+      let tableHTML = `<table>
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Subject</th>
+            <th>Status</th>
+          </tr>
+        </thead><tbody>`;
+      records.forEach((rec, idx) => {
+        tableHTML += `<tr>
+          <td>${idx + 1}</td>
+          <td>${rec.start_time}</td>
+          <td>${rec.end_time}</td>
+          <td>${rec.subject_name}</td>
+          <td>${rec.Marked_status}</td>
+        </tr>`;
+      });
+      tableHTML += '</tbody></table>';
+      return tableHTML;
+    }
+
+    function createSemesterAttendance(semesters) {
+      if (!semesters || semesters.length === 0) return '<p>No semester attendance data found.</p>';
+      let html = '<div>';
+      semesters.forEach(sem => {
+        html += `
+          <div>
+            <strong>Semester ${sem.semester_number}</strong><br/>
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" style="width: ${sem.percentage}%;"></div>
+            </div>
+            <small>${sem.percentage}%</small>
+          </div>
+          <br/>
+        `;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    async function showTodayAttendance() {
+      if (!username) {
+        attendanceContent.innerHTML = 'Student details not loaded.';
+        return;
+      }
+      setLoadingState(true);
+      attendanceContent.innerHTML = '<p>Loading today\'s attendance...</p>';
+      try {
+        const res = await fetch('/attendance/today?username=' + encodeURIComponent(username));
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        attendanceContent.innerHTML = createAttendanceTable(data);
+      } catch (e) {
+        attendanceContent.innerHTML = '<p>Error loading today\'s attendance.</p>';
+        console.error('Fetch error:', e);
+      } finally {
+        setLoadingState(false);
+      }
+    }
+
+    async function showSemesterAttendance() {
+      if (!username) {
+        attendanceContent.innerHTML = 'Student details not loaded.';
+        return;
+      }
+      setLoadingState(true);
+      attendanceContent.innerHTML = '<p>Loading semester attendance...</p>';
+      try {
+        const res = await fetch('/attendance/semester?username=' + encodeURIComponent(username));
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        attendanceContent.innerHTML = createSemesterAttendance(data);
+      } catch (e) {
+        attendanceContent.innerHTML = '<p>Error loading semester attendance.</p>';
+        console.error('Fetch error:', e);
+      } finally {
+        setLoadingState(false);
+      }
+    }
+
+    async function showDateRangeAttendance() {
+      if (!username) {
+        attendanceContent.innerHTML = 'Student details not loaded.';
+        return;
+      }
+      attendanceContent.innerHTML = `
+        <div class="date-picker">
+          <label for="startDate"><strong>Start Date: </strong></label>
+          <input type="date" id="startDate" />
+          <label for="endDate" style="margin-left:1rem;"><strong>End Date: </strong></label>
+          <input type="date" id="endDate" />
+          <button id="btnFetchRange" style="margin-left:1rem;">Fetch Attendance</button>
+        </div>
+        <div id="dateRangeTable" aria-live="polite" aria-atomic="true">Please select start and end dates.</div>
+      `;
+      const startInput = document.getElementById('startDate');
+      const endInput = document.getElementById('endDate');
+      const btnFetch = document.getElementById('btnFetchRange');
+      const dateRangeTableDiv = document.getElementById('dateRangeTable');
+
+      btnFetch.addEventListener('click', async () => {
+        const startDate = startInput.value;
+        const endDate = endInput.value;
+        if (!startDate || !endDate) {
+          dateRangeTableDiv.innerHTML = 'Please select both start and end dates.';
+          return;
+        }
+        if (startDate > endDate) {
+          dateRangeTableDiv.innerHTML = 'Start date cannot be after end date.';
+          return;
+        }
+        dateRangeTableDiv.innerHTML = 'Loading attendance...';
+        btnFetch.disabled = true;
+        try {
+          const res = await fetch(`/attendance/datewise?username=${encodeURIComponent(username)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          const data = await res.json();
+          dateRangeTableDiv.innerHTML = createAttendanceTable(data);
+        } catch (e) {
+          dateRangeTableDiv.innerHTML = 'Error loading attendance for selected dates.';
+          console.error('Fetch error:', e);
+        } finally {
+          btnFetch.disabled = false;
+        }
+      });
+    }
+
+    function setLoadingState(isLoading) {
+      btnToday.disabled = isLoading;
+      btnSemester.disabled = isLoading;
+      btnDateWise.disabled = isLoading;
+    }
+
+    btnToday.addEventListener('click', showTodayAttendance);
+    btnSemester.addEventListener('click', showSemesterAttendance);
+    btnDateWise.addEventListener('click', showDateRangeAttendance);
+  </script>
+</body>
+
+</html>

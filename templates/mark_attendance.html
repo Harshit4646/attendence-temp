@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lecture Attendance</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            margin: 20px auto;
+            max-width: 720px;
+            color: #2e3a59;
+        }
+
+        .lecture-details {
+            background-color: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(46, 58, 89, 0.1);
+        }
+
+        .lecture-details h2 {
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 1.65rem;
+            color: #1e293b;
+            letter-spacing: 0.02em;
+        }
+
+        .lecture-details p {
+            font-size: 1.05rem;
+            margin: 6px 0;
+            color: #475569;
+        }
+
+        .student-list {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            box-shadow: 0 8px 20px rgba(46, 58, 89, 0.08);
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .student-list th,
+        .student-list td {
+            text-align: left;
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .student-list th {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: none;
+        }
+
+        .student-list tbody tr {
+            background-color: #f9fafb;
+            border-radius: 10px;
+            transition: background-color 0.25s ease;
+        }
+
+        .student-list tbody tr:hover {
+            background-color: #e0e7ff;
+        }
+
+        .student-list td {
+            border: none;
+            border-top: 1px solid #e0e7ff;
+        }
+
+        .student-list tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-list input[type="checkbox"] {
+            transform: scale(1.25);
+            cursor: pointer;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 12px 26px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+        }
+
+        #saveBtn {
+            background-color: #10b981;
+            color: white;
+        }
+
+        #saveBtn:hover:not(:disabled) {
+            background-color: #059669;
+            box-shadow: 0 8px 18px rgba(5, 150, 105, 0.5);
+        }
+
+        #editBtn {
+            background-color: #3b82f6;
+            color: white;
+            margin-right: 12px;
+        }
+
+        #editBtn:hover:not(:disabled) {
+            background-color: #2563eb;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.5);
+        }
+
+        #updateBtn {
+            background-color: #f97316;
+            color: white;
+        }
+
+        #updateBtn:hover:not(:disabled) {
+            background-color: #ea580c;
+            box-shadow: 0 8px 18px rgba(234, 88, 12, 0.5);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                margin: 10px;
+                max-width: 100%;
+            }
+
+            .lecture-details,
+            .student-list {
+                padding: 15px 20px;
+            }
+
+            .student-list th,
+            .student-list td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            button {
+                width: 100%;
+                font-size: 1rem;
+                padding: 10px 0;
+                margin-top: 16px;
+            }
+
+            #editBtn {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="lecture-details">
+        <h2 id="subjectName">Subject: Loading...</h2>
+        <p><strong>Start Time:</strong> <span id="startTime">Loading...</span></p>
+        <p><strong>End Time:</strong> <span id="endTime">Loading...</span></p>
+        <p><strong>Faculty:</strong> <span id="faculty">Loading...</span></p>
+    </div>
+
+    <table class="student-list" id="studentTable" aria-label="Student list">
+        <thead>
+            <tr>
+                <th>Present</th>
+                <th>Name</th>
+                <th>Roll No</th>
+                <th>Branch</th>
+                <th>Section</th>
+                <th>Phone No</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button id="editBtn" disabled>Edit</button>
+    <button id="saveBtn" disabled>Save</button>
+    <button id="updateBtn" disabled>Update</button>
+
+    <script>
+        let lectureInfo = null;
+        let students = [];
+        let attendanceDB = {};
+        let attendanceExists = false;
+        let editingEnabled = false;
+        let initialAttendance = {};
+
+        async function fetchLectureInfo() {
+            const res = await fetch("/lecture");
+            if (!res.ok) throw new Error("Failed to fetch lecture info");
+            return await res.json();
+        }
+
+        async function fetchStudents() {
+            const res = await fetch("/students");
+            if (!res.ok) throw new Error("Failed to fetch students");
+            return await res.json();
+        }
+
+        async function fetchAttendance() {
+            const res = await fetch("/attendance");
+            if (!res.ok) throw new Error("Failed to fetch attendance");
+            return await res.json();
+        }
+
+        function renderLectureDetails() {
+            if (!lectureInfo) return;
+            document.getElementById("subjectName").textContent = "Subject: " + lectureInfo.subject_name;
+            document.getElementById("startTime").textContent = lectureInfo.start_time;
+            document.getElementById("endTime").textContent = lectureInfo.end_time;
+            document.getElementById("faculty").textContent = lectureInfo.faculty;
+        }
+
+        function renderStudents() {
+            const tbody = document.querySelector("#studentTable tbody");
+            tbody.innerHTML = "";
+
+            students.forEach(student => {
+                const tr = document.createElement("tr");
+
+                const tdCheckbox = document.createElement("td");
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+
+                checkbox.disabled = attendanceExists ? !editingEnabled : false;
+
+                checkbox.dataset.rollNo = student.roll_no;
+                if (attendanceDB[student.roll_no]) checkbox.checked = true;
+
+                tdCheckbox.appendChild(checkbox);
+                tr.appendChild(tdCheckbox);
+
+                ["name", "roll_no", "branch", "section", "phone_no"].forEach(field => {
+                    const td = document.createElement("td");
+                    td.textContent = student[field];
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function gatherChangedAttendance() {
+            const checkboxes = document.querySelectorAll("#studentTable tbody input[type='checkbox']");
+            const changed = {};
+            checkboxes.forEach(cb => {
+                const roll = cb.dataset.rollNo;
+                const checked = cb.checked;
+                if ((initialAttendance[roll] || false) !== checked) {
+                    changed[roll] = checked;
+                }
+            });
+            return changed;
+        }
+
+        async function saveAttendance() {
+            const changedAttendance = gatherChangedAttendance();
+            if (Object.keys(changedAttendance).length === 0) {
+                alert("No changes to save.");
+                return;
+            }
+            try {
+                const res = await fetch("/save_attendance", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(changedAttendance)
+                });
+                if (!res.ok) throw new Error("Failed to save attendance");
+                alert("Attendance saved successfully.");
+
+                Object.entries(changedAttendance).forEach(([roll, val]) => {
+                    initialAttendance[roll] = val;
+                    attendanceDB[roll] = val;
+                });
+
+                editingEnabled = false;
+                attendanceExists = true;
+                renderStudents();
+                disableButtons();
+            } catch (e) {
+                alert("Error saving attendance: " + e.message);
+            }
+        }
+
+        async function updateAttendance() {
+            const changedAttendance = gatherChangedAttendance();
+            if (Object.keys(changedAttendance).length === 0) {
+                alert("No changes to update.");
+                return;
+            }
+            try {
+                const res = await fetch("/update_attendance", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(changedAttendance)
+                });
+                if (!res.ok) throw new Error("Failed to update attendance");
+                alert("Attendance updated successfully.");
+
+                Object.entries(changedAttendance).forEach(([roll, val]) => {
+                    initialAttendance[roll] = val;
+                    attendanceDB[roll] = val;
+                });
+
+                editingEnabled = false;
+                renderStudents();
+                disableButtons();
+            } catch (e) {
+                alert("Error updating attendance: " + e.message);
+            }
+        }
+
+        function enableEditing() {
+            editingEnabled = true;
+            renderStudents();
+            document.getElementById("saveBtn").disabled = true;
+            document.getElementById("updateBtn").disabled = false;
+            document.getElementById("editBtn").disabled = true;
+        }
+
+        function disableButtons() {
+            document.getElementById("saveBtn").disabled = true;
+            document.getElementById("updateBtn").disabled = true;
+            document.getElementById("editBtn").disabled = false;
+        }
+
+        async function initializePage() {
+            try {
+                lectureInfo = await fetchLectureInfo();
+                students = await fetchStudents();
+                attendanceDB = await fetchAttendance() || {};
+
+                attendanceExists = Object.keys(attendanceDB).length > 0;
+                initialAttendance = { ...attendanceDB };
+
+                renderLectureDetails();
+                renderStudents();
+
+                if (!attendanceExists) {
+                    document.getElementById("saveBtn").disabled = false;
+                    document.getElementById("updateBtn").disabled = true;
+                    document.getElementById("editBtn").disabled = true;
+                    editingEnabled = false;
+                } else {
+                    document.getElementById("saveBtn").disabled = true;
+                    document.getElementById("updateBtn").disabled = true;
+                    document.getElementById("editBtn").disabled = false;
+                    editingEnabled = false;
+                }
+            } catch (e) {
+                alert("Error loading data: " + e.message);
+            }
+        }
+
+        document.getElementById("editBtn").addEventListener("click", enableEditing);
+        document.getElementById("saveBtn").addEventListener("click", saveAttendance);
+        document.getElementById("updateBtn").addEventListener("click", updateAttendance);
+
+        initializePage();
+    </script>
+</body>
+
+</html>
