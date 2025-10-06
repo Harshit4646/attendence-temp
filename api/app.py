@@ -8,7 +8,7 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.secret_key = "12345678"
+app.secret_key = os.getenv("SECRET_KEY", "dev-default")
 CORS(app, origins=["https://attendence-temp.vercel.app"])
 
 def convert_timedelta_to_str(value):
@@ -264,6 +264,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
