@@ -303,7 +303,7 @@
 
     let username = null;
 
-    fetch('/student_details')
+    fetch('/api/student_details')
       .then(response => response.json())
       .then(data => {
         if (data.error) {
@@ -386,7 +386,7 @@
       setLoadingState(true);
       attendanceContent.innerHTML = '<p>Loading today\'s attendance...</p>';
       try {
-        const res = await fetch('/attendance/today?username=' + encodeURIComponent(username));
+        const res = await fetch('/api/attendance/today?username=' + encodeURIComponent(username));
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         attendanceContent.innerHTML = createAttendanceTable(data);
@@ -406,7 +406,7 @@
       setLoadingState(true);
       attendanceContent.innerHTML = '<p>Loading semester attendance...</p>';
       try {
-        const res = await fetch('/attendance/semester?username=' + encodeURIComponent(username));
+        const res = await fetch('/api/attendance/semester?username=' + encodeURIComponent(username));
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         attendanceContent.innerHTML = createSemesterAttendance(data);
@@ -452,7 +452,7 @@
         dateRangeTableDiv.innerHTML = 'Loading attendance...';
         btnFetch.disabled = true;
         try {
-          const res = await fetch(`/attendance/datewise?username=${encodeURIComponent(username)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
+          const res = await fetch(`/api/attendance/datewise?username=${encodeURIComponent(username)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
           if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           const data = await res.json();
           dateRangeTableDiv.innerHTML = createAttendanceTable(data);
@@ -476,5 +476,6 @@
     btnDateWise.addEventListener('click', showDateRangeAttendance);
   </script>
 </body>
+
 
 </html>
