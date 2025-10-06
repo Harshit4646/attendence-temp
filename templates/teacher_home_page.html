@@ -194,7 +194,7 @@
   <script>
     async function fetchSchedule() {
       try {
-        const res = await fetch('/classes');
+        const res = await fetch('/api/classes');
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const classSchedule = await res.json();
         renderScheduleTable(classSchedule);
@@ -258,7 +258,7 @@
 
     async function markAttendanceByCamera(start, end, subject) {
       try {
-        const response = await fetch('/mark_attendance_by_camera', {
+        const response = await fetch('/api/mark_attendance_by_camera', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ start_time: start, end_time: end, subject_name: subject })
@@ -275,7 +275,7 @@
         navigator.geolocation.getCurrentPosition(async pos => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          const response = await fetch('/generate_qr_code', {
+          const response = await fetch('/api/generate_qr_code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ start_time: start, end_time: end, subject_name: subject})
@@ -317,7 +317,7 @@
       };
 
       try {
-        const response = await fetch('/details', {
+        const response = await fetch('/api/details', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(lectureDetails)
@@ -339,7 +339,7 @@
       output.textContent = "Checking...";
 
       try {
-        const res = await fetch('/student_attendance', {
+        const res = await fetch('/api/student_attendance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 'roll': roll })
@@ -403,5 +403,6 @@
     fetchSchedule();
   </script>
 </body>
+
 
 </html>
