@@ -263,7 +263,8 @@ def verify_and_mark():
     return jsonify({"access_granted":True})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
+
 
 
 
