@@ -2,3 +2,6 @@ flask
 flask-cors
 gunicorn
 opencv-python
+numpy
+dlib
+face_recognition
