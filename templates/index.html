@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Webpage</title>
+  <style>
+    /* --- Global Styles & Reset --- */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9; /* Light gray background for the whole page */
+    color: #333; /* Dark text color */
+    margin: 0; /* Remove default browser margin */
+    padding: 0;
+    text-align: center; /* Center content horizontally */
+}
+
+/* --- Header Styling --- */
+header {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* --- Main Content Styling (using the class we defined) --- */
+.content-box {
+    width: 80%; /* Takes up 80% of the screen width */
+    max-width: 700px; /* But never gets wider than 700px */
+    margin: 20px auto; /* Center the box and add vertical space */
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Button Styling (Call to Action) --- */
+.call-to-action {
+    background-color: #FF5722; /* Orange background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 5px;
+    cursor: pointer; /* Changes mouse to a hand pointer */
+    font-size: 16px;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.call-to-action:hover {
+    background-color: #E64A19; /* Darker orange on hover */
+}
+
+/* --- Footer Styling --- */
+footer {
+    padding: 10px 0;
+    background-color: #ccc; /* Light grey footer */
+    color: #555;
+    position: fixed; /* Fixes the footer to the bottom of the viewport */
+    bottom: 0;
+    width: 100%;
+}
+  </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Simple Page</h1>
+    </header>
+    
+    <main class="content-box">
+        <p>This is the main content area of my first webpage. It's structured with HTML and styled with CSS.</p>
+        <p>HTML is the skeleton, and CSS is the skin and clothes!</p>
+        <button class="call-to-action">Learn More</button>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Simple Web Project</p>
+    </footer>
+</body>
+</html>
