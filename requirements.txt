@@ -8,3 +8,5 @@ supabase
 bcrypt
 qrcode
 pillow
+tensorflow==2.20.0
+tf-keras
