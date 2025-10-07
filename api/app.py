@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="templates)
 app.secret_key = os.getenv("SECRET_KEY", "dev-default")
 CORS(app, origins=["https://attendence-temp.vercel.app"])
 
@@ -269,6 +269,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
