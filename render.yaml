@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: attendance-flask-web
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICEROLE_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
