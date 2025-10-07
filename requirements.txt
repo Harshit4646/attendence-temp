@@ -1,20 +1,12 @@
-# --- Core Server ---
 Flask
 flask-cors
 gunicorn
-
-# --- Face Recognition ---
 deepface
 opencv-python-headless
 numpy==1.24.3
 pillow
-
-# --- Database / Auth ---
 supabase
 bcrypt
-
-# --- QR Code ---
 qrcode
-
-# --- Utils ---
 python-dotenv
+tensorflow-cpu==2.12.0
