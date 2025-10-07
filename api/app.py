@@ -4,8 +4,13 @@ from attendance import attendance
 import attendance_supabase
 from datetime import timedelta, datetime, timezone
 from qr_attendence import generate_qr_code
-import os
+import os,sys
 from flask_cors import CORS
+# allow imports from project root (where attendance.py, db_supabase.py live)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# tell Flask where to find templates/static if they are one level up
+TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-default")
@@ -264,6 +269,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
