@@ -4,6 +4,8 @@ gunicorn
 opencv-python-headless
 numpy
 deepface
+tensorflow
+retina-face
 supabase
 bcrypt
 qrcode
