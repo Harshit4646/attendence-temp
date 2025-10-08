@@ -6,15 +6,14 @@ from datetime import timedelta, datetime, timezone
 from qr_attendence import generate_qr_code
 import os,sys
 from flask_cors import CORS
-# allow imports from project root (where attendance.py, db_supabase.py live)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# tell Flask where to find templates/static if they are one level up
-TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
-STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-app = Flask(__name__,template_folder="templates")
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+    static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+)
 app.secret_key = os.getenv("SECRET_KEY", "dev-default")
-CORS(app, origins=["https://attendence-temp.vercel.app"])
+CORS(app)
 
 def convert_timedelta_to_str(value):
     if isinstance(value, timedelta):
@@ -269,6 +268,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
