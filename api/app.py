@@ -42,6 +42,7 @@ def register_page():
 @app.route('/api/register', methods=['POST'])
 def register_api():
     data = request.get_json()
+    print(data)
     if not data:
         return "Invalid data", 400
         
@@ -278,6 +279,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
