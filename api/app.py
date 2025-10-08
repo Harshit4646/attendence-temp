@@ -35,56 +35,66 @@ def mark_attendance():
     except Exception:
         pass
 
-@app.route('/api/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        data = request.get_json()
-        if not data:
-            return "Invalid data", 400
-        
-        name = data.get('name')
-        rollno = data.get('rollno')
-        branch = data.get('branch')
-        section = data.get('section')
-        phone = data.get('phone')
-        dob = data.get('dob')
-        username = data.get('username')
-        password = data.get('password')
-        
-        if None in (name, rollno, branch, section, phone, dob, username, password):
-            return "Missing required fields", 400
-
-        image = register_face.register_face(rollno)
-        if image is None:
-            return "Face registration failed", 400
-        reg_success = attendance_supabase.register_in_database(name, rollno, branch,section, phone, dob,image, username, password)
-        if reg_success:
-            return f"Registration successful for {name} (Roll No: {rollno})!"
-        else:
-            return "Registration failed", 500
+@app.route('/register', methods=['GET'])
+def register_page():
     return render_template('register.html')
+    
+@app.route('/api/register', methods=['POST'])
+def register_api():
+    data = request.get_json()
+    if not data:
+        return "Invalid data", 400
+        
+    name = data.get('name')
+    rollno = data.get('rollno')
+    branch = data.get('branch')
+    section = data.get('section')
+    phone = data.get('phone')
+    dob = data.get('dob')
+    username = data.get('username')
+    password = data.get('password')
+        
+    if None in (name, rollno, branch, section, phone, dob, username, password):
+        return "Missing required fields", 400
 
-@app.route('/api/login', methods=['GET', 'POST'])
+    image = register_face.register_face(rollno)
+    if image is None:
+        return "Face registration failed", 400
+    reg_success = attendance_supabase.register_in_database(name, rollno, branch,section, phone, dob,image, username, password)
+    if reg_success:
+        return f"Registration successful for {name} (Roll No: {rollno})!"
+    else:
+        return "Registration failed", 500
+
+@app.route('/login', methods=['GET'])
 def login():
-    error = None
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        role = request.form.get('role')
-        if not username or not password or not role:
-            error = "All fields are required"
-            return render_template('login.html', error=error)
-        value = attendance_supabase.check_access(role, username, password)
-        if value not in ["Password is wrong", "Username not found"]:
-            if role == 'student':
-                session['username'] = username
-                return redirect('/student_home_page')
-            else:
-                session['teacher_Username'] = username
-                return redirect('/teacher_home_page')
+    return render_template('login.html')
+    
+@app.route('/api/login', methods=['POST'])
+def login_api():
+    data = request.get_json(silent=True)
+    if not data:
+        data = request.form.to_dict()
+
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role')
+
+    if not username or not password or not role:
+        return jsonify({"error": "All fields are required"}), 400
+
+    value = attendance_supabase.check_access(role, username, password)
+
+    if value == "Password is wrong":
+        return jsonify({"error": "Password is wrong"}), 401
+    elif value == "Username not found":
+        return jsonify({"error": "Username not found"}), 404
+    else:
+        if role == 'student':
+            session['username'] = username
         else:
-            error = value
-    return render_template('login.html', error=error)
+            session['teacher_Username'] = username
+        return jsonify({"message": "Login successful", "role": role}), 200
 
 @app.route('/api/student_home_page')
 def student_home_page():
@@ -268,6 +278,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
