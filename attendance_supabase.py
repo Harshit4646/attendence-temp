@@ -5,22 +5,15 @@ from typing import Dict, List, Any, Optional
 
 # ---------- Registration ----------
 def register_in_database(name, rollno, branch, section, phone_no, dob, image, username, password):
-    """
-    Uploads student image to storage and inserts/updates student_record row in Postgres.
-    """
-    # 1) upload image
     file_bytes = cv2_to_jpg_bytes(image)
-    if file_bytes is None:
-        return False
+    if not file_bytes:
+        return {"success": False, "error": "Image conversion failed"}
 
-    path = f"{rollno}.jpg"   # you can use folders: f"students/{rollno}.jpg"
-    upload_res = supabase.storage.from_(BUCKET).upload(path, file_bytes)
-    # upload_res is a dict-like response, but check status via errors
-    if upload_res is None:
-        # handle error (upload failed)
-        return False
+    path = f"{rollno}.jpg"
+    upload_res = supabase.storage.from_(BUCKET).upload(path, file_bytes, {"upsert": True})
+    if upload_res.get("error"):
+        return {"success": False, "error": f"Upload failed: {upload_res['error']}"}
 
-    # 2) insert into student_record (use upsert)
     payload = {
         "roll_no": str(rollno),
         "name": name,
@@ -36,10 +29,10 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
         "semester_no": 1
     }
     res = supabase.table("student_record").upsert(payload).execute()
-    # res.status_code often not present; check res.data or res.error
     if getattr(res, "error", None):
-        return False
-    return True
+        return {"success": False, "error": f"DB insert failed: {res.error}"}
+
+    return {"success": True, "roll_no": rollno}
 
 # ---------- Access / Auth ----------
 def check_access(role, username, password):
@@ -253,3 +246,4 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if getattr(res, "error", None):
         print("error updating location:", res.error)
+
