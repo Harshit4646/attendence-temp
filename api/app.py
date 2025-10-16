@@ -23,6 +23,10 @@ def convert_timedelta_to_str(value):
         return f"{hours:02}:{minutes:02}:{seconds:02}"
     return value
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 @app.route('/api/mark_attendance_by_camera',methods=['GET','POST'])
 def mark_attendance():
     try:
@@ -287,6 +291,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
