@@ -1,19 +1,19 @@
 import cv2
+import numpy as np
+import base64
 
-def register_face(roll_no):
-    cap=cv2.VideoCapture(0)
-    print("Press SPACE to capture image, ESC to cancel.")
-    while True:
-        ret, frame=cap.read()
-        if(not ret):
-            break
-        cv2.imshow("Register Face - "+ roll_no, frame)
-        key=cv2.waitKey(1)
-
-        if key % 256 == 27:
-            print("Registration cancelled.")
-            break
-        elif key % 256 == 32:
-            return frame
-    cap.release()
-    cv2.destroyAllWindows()
+def register_face_from_base64(base64_image):
+    """
+    Decode base64 image string to OpenCV image.
+    """
+    try:
+        # Remove prefix (data:image/jpeg;base64,...) if present
+        if ',' in base64_image:
+            base64_image = base64_image.split(',')[1]
+        img_bytes = base64.b64decode(base64_image)
+        np_arr = np.frombuffer(img_bytes, np.uint8)
+        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        return img
+    except Exception as e:
+        print("Error decoding image:", e)
+        return None
