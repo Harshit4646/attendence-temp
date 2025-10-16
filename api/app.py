@@ -42,10 +42,10 @@ def register_page():
 @app.route('/api/register', methods=['POST'])
 def register_api():
     data = request.get_json()
-    print(data)
     if not data:
-        return "Invalid data", 400
-        
+        return jsonify({"error": "Invalid data"}), 400
+
+    # Extract fields
     name = data.get('name')
     rollno = data.get('rollno')
     branch = data.get('branch')
@@ -54,18 +54,26 @@ def register_api():
     dob = data.get('dob')
     username = data.get('username')
     password = data.get('password')
-        
-    if None in (name, rollno, branch, section, phone, dob, username, password):
-        return "Missing required fields", 400
+    image_base64 = data.get('image')  # Frontend sends this
 
-    image = register_face.register_face(rollno)
+    # Validate fields
+    if None in (name, rollno, branch, section, phone, dob, username, password, image_base64):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Decode base64 -> OpenCV image
+    image = register_face.register_face_from_base64(image_base64)
     if image is None:
-        return "Face registration failed", 400
-    reg_success = attendance_supabase.register_in_database(name, rollno, branch,section, phone, dob,image, username, password)
+        return jsonify({"error": "Image decoding failed"}), 400
+
+    # Save to Supabase
+    reg_success = attendance_supabase.register_in_database(
+        name, rollno, branch, section, phone, dob, image, username, password
+    )
+
     if reg_success:
-        return f"Registration successful for {name} (Roll No: {rollno})!"
+        return jsonify({"message": f"Registration successful for {name} (Roll No: {rollno})!"}), 200
     else:
-        return "Registration failed", 500
+        return jsonify({"error": "Registration failed"}), 500
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -279,6 +287,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
