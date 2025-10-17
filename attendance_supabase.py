@@ -58,7 +58,7 @@ def check_access(role, username, password):
 
         else:  # teacher
             res = supabase.table("teacher_record") \
-                .select("teacher_Username, password_hash") \
+                .select("teacher_username, password_hash") \
                 .eq("teacher_Username", username) \
                 .limit(1) \
                 .execute()
@@ -224,4 +224,5 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
