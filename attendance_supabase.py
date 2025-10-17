@@ -38,23 +38,46 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
 
 # ---------- Access / Auth ----------
 def check_access(role, username, password):
-    if role == 'student':
-        res = supabase.table("student_record").select("roll_no, password_hash").eq("username", username).limit(1).execute()
-        if res.status_code != 200 or not res.data:
-            return "Username not found"
-        row = res.data[0]
-        if check_password(password, row["password_hash"]):
-            return row["roll_no"]
-        return "Password is wrong"
+    try:
+        if role == 'student':
+            res = supabase.table("student_record") \
+                .select("roll_no, password_hash") \
+                .eq("username", username) \
+                .limit(1) \
+                .execute()
 
-    else:  # teacher
-        res = supabase.table("teacher_record").select("teacher_Username, password_hash").eq("teacher_Username", username).limit(1).execute()
-        if res.status_code != 200 or not res.data:
-            return "Username not found"
-        row = res.data[0]
-        if check_password(password, row["password_hash"]):
-            return "Grant Access"
-        return "Password is wrong"
+            data = getattr(res, "data", None)  # handle Supabase APIResponse format
+            if not data or len(data) == 0:
+                return "Username not found"
+
+            row = data[0]
+            if check_password(password, row["password_hash"]):
+                return row["roll_no"]
+            else:
+                return "Password is wrong"
+
+        else:  # teacher
+            res = supabase.table("teacher_record") \
+                .select("teacher_Username, password_hash") \
+                .eq("teacher_Username", username) \
+                .limit(1) \
+                .execute()
+
+            data = getattr(res, "data", None)
+            if not data or len(data) == 0:
+                return "Username not found"
+
+            row = data[0]
+            if check_password(password, row["password_hash"]):
+                return "Grant Access"
+            else:
+                return "Password is wrong"
+
+    except Exception as e:
+        print("Error in check_access:", e)
+        import traceback; traceback.print_exc()
+        return "Server error"
+
 
 # ---------- Get student (profile) ----------
 def get_student_by_id(username):
@@ -201,3 +224,4 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
