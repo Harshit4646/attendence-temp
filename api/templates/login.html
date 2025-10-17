@@ -165,43 +165,78 @@
     </form>
   </div>
   <script>
-    const form = document.getElementById('loginForm');
-    const message = document.getElementById('message');
-    const registerButton = document.getElementById('registerButton');
-    form.addEventListener('submit', function (event) {
-      message.textContent = '';
-      const username = form.username.value.trim();
-      const password = form.password.value;
-      const roles = form.querySelectorAll('input[name="role"]');
-      let roleSelected = false;
-      roles.forEach(radio => { if (radio.checked) roleSelected = true; });
+const form = document.getElementById('loginForm');
+const message = document.getElementById('message');
+const registerButton = document.getElementById('registerButton');
 
-      if (!username) {
-        event.preventDefault();
-        message.textContent = 'Please enter your username.';
-        form.username.focus();
-        return;
-      }
-      if (!password) {
-        event.preventDefault();
-        message.textContent = 'Please enter your password.';
-        form.password.focus();
-        return;
-      }
-      if (!roleSelected) {
-        event.preventDefault();
-        message.textContent = 'Please select your role.';
-        return;
-      }
-      message.textContent = '';
+form.addEventListener('submit', async function (event) {
+  event.preventDefault();                 // <- MUST be first so browser won't navigate
+  message.textContent = '';
+  message.style.color = '';               // reset styling
+
+  // basic front-end validation (optional - keeps UX quick)
+  const username = form.username.value.trim();
+  const password = form.password.value;
+  const role = form.querySelector('input[name="role"]:checked');
+
+  if (!username) {
+    message.textContent = 'Please enter your username.';
+    form.username.focus();
+    return;
+  }
+  if (!password) {
+    message.textContent = 'Please enter your password.';
+    form.password.focus();
+    return;
+  }
+  if (!role) {
+    message.textContent = 'Please select your role.';
+    return;
+  }
+
+  // send as multipart/form-data (works with your Flask request.form)
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      body: formData
     });
-    registerButton.addEventListener('click', function () {
-      window.location.href = '/register';
-    });
-  </script>
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      // show backend-provided error (e.g. "Username not found")
+      message.textContent = data.error || 'Login failed';
+      message.style.color = '#d6336c';
+      return;
+    }
+
+    // success
+    message.textContent = data.message || 'Login successful';
+    message.style.color = 'green';
+
+    // redirect based on role (adjust paths to your app)
+    if (data.role === 'student') {
+      window.location.href = '/student_dashboard';
+    } else {
+      window.location.href = '/teacher_dashboard';
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    message.textContent = 'Server error. Try again later.';
+    message.style.color = '#d6336c';
+  }
+});
+
+registerButton.addEventListener('click', function () {
+  window.location.href = '/register';
+});
+</script>
 </body>
 
 
 </html>
+
 
 
