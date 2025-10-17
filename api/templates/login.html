@@ -218,9 +218,10 @@ form.addEventListener('submit', async function (event) {
 
     // redirect based on role (adjust paths to your app)
     if (data.role === 'student') {
-      window.location.href = '/student_dashboard';
-    } else {
-      window.location.href = '/teacher_dashboard';
+      window.location.href = '/student_home_page';
+    } 
+    if (data.role === 'teacher') {
+      window.location.href = '/teacher_home_page';
     }
   } catch (err) {
     console.error('Login error:', err);
@@ -237,6 +238,7 @@ registerButton.addEventListener('click', function () {
 
 
 </html>
+
 
 
 
