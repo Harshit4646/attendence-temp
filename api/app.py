@@ -127,7 +127,7 @@ def login_api():
             session['teacher_Username'] = username
         return jsonify({"message": "Login successful", "role": role}), 200
 
-@app.route('/api/student_home_page')
+@app.route('/student_home_page')
 def student_home_page():
     if 'username' not in session:
         return redirect('/login')
@@ -178,7 +178,7 @@ def attendance_datewise_route():
     data = attendance_supabase.get_datewise_attendance(roll_no, startdate, enddate)
     return jsonify(data)
 
-@app.route('/api/teacher_home_page')
+@app.route('/teacher_home_page')
 def teacher_home_page():
     if 'teacher_Username' not in session:
         return redirect('/login')
@@ -192,7 +192,7 @@ def classes():
     classes_list = attendance_supabase.classes(username)
     return jsonify(classes_list)
 
-@app.route('/api/mark_attendance')
+@app.route('/mark_attendance')
 def mark():
     return render_template('mark_attendance.html')
 
@@ -257,7 +257,7 @@ def update_attendance():
     attendance_supabase.update_attendance(data, session.get('start_time'), session.get('end_time'), date, 'Manual')
     return jsonify({'message': 'Updated'})
 
-@app.route('/api/time_table')
+@app.route('/time_table')
 def time_table():
     return render_template('timetable.html',)
 
@@ -293,7 +293,7 @@ def generate_qr_code_route():
         'attendance_url': attendance_url,
     })
 
-@app.route('/api/attendance_form')
+@app.route('/attendance_form')
 def attendance_form():
     return render_template('attendance_form.html')
 
@@ -309,6 +309,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
