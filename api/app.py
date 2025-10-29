@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, session
+import cv2
 import register_face
 from attendance import attendance
 import attendance_supabase
@@ -304,6 +305,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
