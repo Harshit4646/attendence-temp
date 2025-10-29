@@ -45,57 +45,52 @@ def register_page():
     
 @app.route('/api/register', methods=['POST'])
 def register_api():
-    try:
-        # 1️⃣ Parse JSON
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Invalid JSON data"}), 400
+    # 1️⃣ Parse JSON
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON data"}), 400
 
-        # 2️⃣ Extract fields
-        required_fields = ["name", "rollno", "branch", "section", "phone", "dob", "username", "password", "image"]
-        for field in required_fields:
-            if field not in data or not data[field]:
-                return jsonify({"error": f"{field} is required"}), 400
+    # 2️⃣ Extract fields
+    required_fields = ["name", "rollno", "branch", "section", "phone", "dob", "username", "password", "image"]
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({"error": f"{field} is required"}), 400
 
-        name = data["name"]
-        rollno = data["rollno"]
-        branch = data["branch"]
-        section = data["section"]
-        phone = data["phone"]
-        dob = data["dob"]
-        username = data["username"]
-        password = data["password"]
-        image_base64 = data["image"]
+    name = data["name"]
+    rollno = data["rollno"]
+    branch = data["branch"]
+    section = data["section"]
+    phone = data["phone"]
+    dob = data["dob"]
+    username = data["username"]
+    password = data["password"]
+    image_base64 = data["image"]
 
-        # 3️⃣ Convert base64 -> OpenCV image
-        image = register_face.register_face_from_base64(image_base64)
-        if image is None:
-            return jsonify({"error": "Image decoding failed"}), 400
+    # 3️⃣ Convert base64 -> OpenCV image
+    image = register_face.register_face_from_base64(image_base64)
+    if image is None:
+        return jsonify({"error": "Image decoding failed"}), 400
 
-        # Optional: resize to save storage space
-        image = cv2.resize(image, (256, 256))
+    # Optional: resize to save storage space
+    image = cv2.resize(image, (256, 256))
 
-        # 4️⃣ Register in Supabase + Postgres
-        success = attendance_supabase.register_in_database(
-            name=name,
-            rollno=rollno,
-            branch=branch,
-            section=section,
-            phone_no=phone,
-            dob=dob,
-            image=image,
-            username=username,
-            password=password
-        )
+    # 4️⃣ Register in Supabase + Postgres
+    success = attendance_supabase.register_in_database(
+        name=name,
+        rollno=rollno,
+        branch=branch,
+        section=section,
+        phone_no=phone,
+        dob=dob,
+        image=image,
+        username=username,
+        password=password
+    )
 
-        if success:
-            return jsonify({"message": f"Registration successful for {name} (Roll No: {rollno})!"}), 200
-        else:
-            return jsonify({"error": "Registration failed"}), 500
-
-    except Exception as e:
-        print("Registration API error:", e)
-        return jsonify({"error": "Server error"}), 500
+    if success:
+        return jsonify({"message": f"Registration successful for {name} (Roll No: {rollno})!"}), 200
+    else:
+        return jsonify({"error": "Registration failed"}), 500
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -309,6 +304,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
