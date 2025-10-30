@@ -6,14 +6,12 @@ import cv2
 
 # ---------- Registration ----------
 def register_in_database(name, rollno, branch, section, phone_no, dob, image, username, password):
-    from pprint import pprint  # for clean debug print
+    from pprint import pprint
 
-    # Convert image to bytes
     file_bytes = cv2_to_jpg_bytes(image)
     if not file_bytes:
         return {"success": False, "error": "Image conversion failed"}
 
-    # File path in bucket
     path = f"{rollno}.jpg"
 
     # ---------- Upload image ----------
@@ -21,18 +19,17 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
         upload_res = supabase.storage.from_(BUCKET).upload(
             path,
             file_bytes,
-            file_options={"upsert": "true"}  # keep as string, not bool
+            options={"content-type": "image/jpeg", "upsert": True}
         )
         print("UPLOAD RESULT:")
         pprint(upload_res)
     except Exception as e:
         return {"success": False, "error": f"Upload exception: {e}"}
 
-    # ---------- Validate upload ----------
     if isinstance(upload_res, dict) and upload_res.get("error"):
         return {"success": False, "error": f"Upload failed: {upload_res['error']}"}
 
-    # ---------- Prepare student data ----------
+    # ---------- Insert student record ----------
     payload = {
         "roll_no": str(rollno),
         "name": name,
@@ -48,22 +45,16 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
         "semester_no": 1
     }
 
-    # ---------- Insert/Upsert to Supabase ----------
     try:
         res = supabase.table("student_record").upsert(payload).execute()
         print("UPSERT RESULT:")
-        pprint(res.__dict__)  # <-- full raw response for debugging
+        pprint(res.__dict__)
     except Exception as e:
         return {"success": False, "error": f"DB insert exception: {e}"}
 
-    # ---------- Validate response ----------
     status = getattr(res, "status_code", None)
     if status not in (200, 201, 204):
         return {"success": False, "error": f"DB insert failed, status: {status}"}
-
-    data = getattr(res, "data", None)
-    if not data:
-        print("⚠️  Warning: Insert succeeded but no data returned — check RLS or schema mismatch")
 
     return {"success": True, "roll_no": rollno}
 
@@ -255,6 +246,7 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
 
 
