@@ -24,6 +24,10 @@ def convert_timedelta_to_str(value):
         return f"{hours:02}:{minutes:02}:{seconds:02}"
     return value
 
+@app.route("/ping")
+def ping():
+    return "OK", 200
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -305,6 +309,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
