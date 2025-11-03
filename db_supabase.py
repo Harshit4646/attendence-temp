@@ -7,8 +7,8 @@ from typing import Optional, Dict, List, Any
 import bcrypt
 import datetime as dt
 
-SUPABASE_URL = os.environ["SUPABASE_URL"]
-SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]  # server-only!
+SUPABASE_URL = 
+SUPABASE_KEY = 
 BUCKET = "student_images"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
