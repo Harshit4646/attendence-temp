@@ -7,7 +7,7 @@ from typing import Optional, Dict, List, Any
 import bcrypt
 import datetime as dt
 
-SUPABASE_URL = 
+SUPABASE_URL = https://xblowjggzviamswxdoxb.supabase.co
 SUPABASE_KEY = 
 BUCKET = "student_images"
 
