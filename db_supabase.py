@@ -7,8 +7,8 @@ from typing import Optional, Dict, List, Any
 import bcrypt
 import datetime as dt
 
-SUPABASE_URL = https://xblowjggzviamswxdoxb.supabase.co
-SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhibG93amdnenZpYW1zd3hkb3hiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTc0MjMyOCwiZXhwIjoyMDc1MzE4MzI4fQ.zZWknUMl6GQ9IVhDXGzOtpGoMyV-ERPVen9Z-kBHXGQ
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]  # server-only!
 BUCKET = "student_images"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
