@@ -45,6 +45,7 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
     }
 
     # Upsert student record in the database
+    res=None
     try:
         res = supabase.table("student_record").upsert(payload).execute()
         print("UPSERT RESULT:")
@@ -255,6 +256,7 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
 
 
