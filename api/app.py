@@ -92,7 +92,7 @@ def register_api():
         password=password
     )
 
-    if success:
+    if success["success"]:
         return jsonify({"message": f"Registration successful for {name} (Roll No: {rollno})!"}), 200
     else:
         return jsonify({"error": "Registration failed"}), 500
@@ -309,6 +309,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
