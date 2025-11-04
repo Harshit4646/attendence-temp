@@ -16,7 +16,7 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
 
     # ---------- Upload image ----------
     try:
-        upload_res = supabase.storage.from_(BUCKET).upload(
+        upload_res = supabase.storage.from_("student_images").upload(
             path,
             file_bytes,
             options={"content-type": "image/jpeg", "upsert": True}
@@ -246,6 +246,7 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
 
 
