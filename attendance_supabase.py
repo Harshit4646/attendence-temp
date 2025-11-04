@@ -14,7 +14,7 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
 
     path = f"{rollno}.jpg"
 
-    # ---------- Upload image ----------
+    # Upload image to Supabase storage bucket
     try:
         upload_res = supabase.storage.from_("student_images").upload(
             path,
@@ -29,7 +29,7 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
     if isinstance(upload_res, dict) and upload_res.get("error"):
         return {"success": False, "error": f"Upload failed: {upload_res['error']}"}
 
-    # ---------- Insert student record ----------
+    # Prepare student record payload
     payload = {
         "roll_no": str(rollno),
         "name": name,
@@ -45,6 +45,7 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
         "semester_no": 1
     }
 
+    # Upsert student record in the database
     try:
         res = supabase.table("student_record").upsert(payload).execute()
         print("UPSERT RESULT:")
@@ -52,9 +53,11 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
     except Exception as e:
         return {"success": False, "error": f"DB insert exception: {e}"}
 
+    # Safely access status_code and data from response
     status = getattr(res, "status_code", None)
-    if status not in (200, 201, 204):
-        return {"success": False, "error": f"DB insert failed, status: {status}"}
+    data = getattr(res, "data", None)
+    if status not in (200, 201, 204) or not data:
+        return {"success": False, "error": f"DB insert failed, status: {status}, data: {data}"}
 
     return {"success": True, "roll_no": rollno}
 
@@ -253,6 +256,7 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
 
 
