@@ -209,12 +209,19 @@ def get_attendance(roll_no):
     return {"name": name, "records": recs}
 
 # ---------- Classes (teacher timetable for the day) ----------
-def classes(username):
-    day = dt.date.today().strftime("%A")
-    rows = supabase.table("time_table").select("section, subject_name, start_time, end_time").eq("teacher_Username", username).eq("day", day).execute()
-    if rows.status_code != 200 or not rows.data:
+def classes(username, day):
+    rows = supabase.table("time_table").select("section, subject_name, start_time, end_time") \
+        .eq("teacher_username", username) \
+        .eq("day", day).execute()
+
+    # Access using getattr to avoid attribute errors
+    status = getattr(rows, "status_code", None)
+    data = getattr(rows, "data", None)
+
+    if status != 200 or not data:
         return []
-    return [{"section": r["section"], "className": r["subject_name"], "start": str(r["start_time"]), "end": str(r["end_time"])} for r in rows.data]
+
+    return data
 
 # ---------- Students list ----------
 def students():
@@ -246,6 +253,7 @@ def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
     if res.status_code != 200:
         print("Error updating location, status:", res.status_code)
+
 
 
 
