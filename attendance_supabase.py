@@ -164,7 +164,15 @@ def get_today_attendance(username):
     res = supabase.table("student_attendance").select("subject_name, marked_status, start_time, end_time").eq("date", date).eq("roll_no", roll_no).execute()
     if getattr(res, "error", None):
         return None
-    return {"subject_name":r["subject_name"],"start_time":r["start_time"],"end_time":r["end_time"],"Marked_status":r["Marked_status"] for r in res.data}
+    return [
+            {
+            "subject_name":r["subject_name"],
+             "start_time":r["start_time"],
+             "end_time":r["end_time"],
+             "Marked_status":r["Marked_status"]
+            }
+        for r in res.data
+    ]
 
 
 # ---------- Update attendance ----------
@@ -276,4 +284,5 @@ def update_location(latitude, longitude, username):
     ).eq("teacher_username", username).execute()
     if getattr(res, "error", None):
         print("Error updating location:", res.error)
+
 
