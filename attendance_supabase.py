@@ -158,12 +158,13 @@ def mark_attendence(present_students: Dict[str, bool], subject_name: str, start_
 
 
 # ---------- Get today's attendance ----------
-def get_today_attendance(start_time, end_time):
+def get_today_attendance(username):
     date = dt.date.today().isoformat()
-    res = supabase.table("student_attendance").select("roll_no, marked_status").eq("date", date).eq("start_time", start_time).eq("end_time", end_time).execute()
+    roll_no= get_student_roll_no(username)
+    res = supabase.table("student_attendance").select("subject_name, marked_status, start_time, end_time").eq("date", date).eq("roll_no", roll_no).execute()
     if getattr(res, "error", None):
         return None
-    return {str(r["roll_no"]): r["marked_status"] == "P" for r in res.data}
+    return {"subject_name":r["subject_name"],"start_time":r["start_time"],"end_time":r["end_time"],"Marked_status":r["Marked_status"] for r in res.data}
 
 
 # ---------- Update attendance ----------
@@ -275,3 +276,4 @@ def update_location(latitude, longitude, username):
     ).eq("teacher_username", username).execute()
     if getattr(res, "error", None):
         print("Error updating location:", res.error)
+
