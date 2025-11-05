@@ -54,9 +54,8 @@ def register_in_database(name, rollno, branch, section, phone_no, dob, image, us
         return {"success": False, "error": f"DB insert exception: {e}"}
 
     # Safely access status_code and data from response
-    status = getattr(res, "status_code", None)
     data = getattr(res, "data", None)
-    if status not in (200, 201, 204) or not data:
+    if res.error or not data:
         return {"success": False, "error": f"DB insert failed, status: {status}, data: {data}"}
 
     return {"success": True, "roll_no": rollno}
@@ -110,7 +109,7 @@ def get_student_by_id(username):
         "name, roll_no, branch, section, phone_no, dob, username, image_path"
     ).eq("username", username).limit(1).execute()
 
-    if res.status_code != 200 or not res.data:
+    if res.error or not res.data:
         return None
 
     data = res.data[0]
@@ -128,14 +127,14 @@ def get_student_by_id(username):
 # ---------- Get student roll number ----------
 def get_student_roll_no(username):
     res = supabase.table("student_record").select("roll_no").eq("username", username).limit(1).execute()
-    if res.status_code != 200 or not res.data:
+    if res.error or not res.data:
         return None
     return res.data[0]["roll_no"]
 
 # ---------- Get student images for recognition ----------
 def get_student_images():
     res = supabase.table("student_record").select("roll_no, image_path").execute()
-    if res.status_code != 200 or not res.data:
+    if res.error or not res.data:
         return []
 
     out = []
@@ -167,7 +166,7 @@ def mark_attendence(present_students: Dict[str, bool], subject_name: str, start_
             "marked_status": 'P' if present else 'A'
         })
     res = supabase.table("student_attendance").insert(rows).execute()
-    if res.status_code != 200:
+    if res.error:
         print("Error inserting attendance, status:", res.status_code)
         return False
     return True
@@ -176,7 +175,7 @@ def mark_attendence(present_students: Dict[str, bool], subject_name: str, start_
 def get_today_attendance(start_time, end_time):
     date = dt.date.today().isoformat()
     res = supabase.table("student_attendance").select("roll_no, marked_status").eq("date", date).eq("start_time", start_time).eq("end_time", end_time).execute()
-    if res.status_code != 200:
+    if res.error:
         return None
     return {str(r["roll_no"]): r["marked_status"] == 'P' for r in res.data}
 
@@ -185,19 +184,19 @@ def update_attendance(attendance: Dict[str,bool], start_time, end_time, date, mo
     for roll, present in attendance.items():
         status = 'P' if present else 'A'
         res = supabase.table("student_attendance").update({"marked_status": status, "mode": mode}).eq("roll_no", roll).eq("start_time", start_time).eq("end_time", end_time).eq("date", date).execute()
-        if res.status_code != 200:
+        if res.error:
             print("Failed updating", roll, "status:", res.status_code)
     return True
 
 # ---------- Get attendance for a student ----------
 def get_attendance(roll_no):
     r = supabase.table("student_record").select("name").eq("roll_no", roll_no).limit(1).execute()
-    if r.status_code != 200 or not r.data:
+    if r.error or not r.data:
         return None
     name = r.data[0]["name"]
 
     rows = supabase.table("student_attendance").select("date, subject_name, start_time, end_time, marked_status").eq("roll_no", roll_no).execute()
-    if rows.status_code != 200:
+    if rows.error:
         return {"name": name, "records": []}
 
     recs = []
@@ -218,10 +217,9 @@ def classes(username, day):
         .eq("day", day).execute()
 
     # Access using getattr to avoid attribute errors
-    status = getattr(rows, "status_code", None)
     data = getattr(rows, "data", None)
 
-    if status != 200 or not data:
+    if rows.error or not data:
         return []
 
     return data
@@ -229,14 +227,14 @@ def classes(username, day):
 # ---------- Students list ----------
 def students():
     rows = supabase.table("student_record").select("name, roll_no, branch, section, phone_no").execute()
-    if rows.status_code != 200 or not rows.data:
+    if rows.error or not rows.data:
         return []
     return [{"name": r["name"], "roll_no": r["roll_no"], "branch": r.get("branch"), "section": r.get("section"), "phone_no": r.get("phone_no")} for r in rows.data]
 
 # ---------- Datewise attendance ----------
 def get_datewise_attendance(roll_no, startdate, enddate):
     rows = supabase.table("student_attendance").select("start_time, end_time, subject_name, marked_status").eq("roll_no", roll_no).gte("date", startdate).lte("date", enddate).execute()
-    if rows.status_code != 200 or not rows.data:
+    if rows.error or not rows.data:
         return []
     return [{"start_time": str(r["start_time"]), "end_time": str(r["end_time"]), "subject_name": r["subject_name"], "Marked_status": r["marked_status"]} for r in rows.data]
 
@@ -246,7 +244,7 @@ def get_time_table():
     data_dict = {}
     for d in days:
         rows = supabase.table("time_table").select("start_time, end_time, subject_name, teacher_name").eq("day", d).execute()
-        if rows.status_code != 200 or not rows.data:
+        if rows.error or not rows.data:
             continue
         data_dict[d] = [{"start": str(r["start_time"]), "end": str(r["end_time"]), "subject": r["subject_name"], "faculty": r["teacher_name"]} for r in rows.data]
     return data_dict
@@ -254,8 +252,9 @@ def get_time_table():
 # ---------- Update location ----------
 def update_location(latitude, longitude, username):
     res = supabase.table("teacher_record").update({"latitude": latitude, "longitude": longitude}).eq("teacher_Username", username).execute()
-    if res.status_code != 200:
+    if res.error:
         print("Error updating location, status:", res.status_code)
+
 
 
 
