@@ -188,7 +188,7 @@ def update_attendance(attendance: Dict[str, bool], start_time, end_time, date, m
 
 
 # ---------- Get attendance for a student ----------
-def get_attendance(roll_no):
+def get_semester_attendance(roll_no):
     r = supabase.table("student_record").select("total_classes,semester_no,present").eq("roll_no", roll_no).execute()
     if getattr(r, "error", None) or not getattr(r, "data", None):
         return None
@@ -209,7 +209,16 @@ def classes(username):
     data = getattr(rows, "data", None)
     if getattr(rows, "error", None) or not data:
         return []
-    return data
+    data_list=[]
+    for d in data:
+        data_dict={
+            "section":data["section"],
+            "subject_name":data["subject_name"],
+            "start_time":data["start_time"],
+            "end_time":data["end_time"]
+        }
+        data_list.append(data_dict)
+    return data_list
 
 
 # ---------- Students list ----------
@@ -274,6 +283,33 @@ def update_location(latitude, longitude, username):
     ).eq("teacher_username", username).execute()
     if getattr(res, "error", None):
         print("Error updating location:", res.error)
+
+
+def get_attendance(roll_no):
+    res = supabase.table("student_attendance").select("subject_name,start_time,end_time,Marked_status").eq("roll_no",roll_no).execute()
+    data_list=[]
+    for r in res.data:
+        data_dict={
+            "start_time":r["start_time"],
+            "end_time":r["end_time"],
+            "subject_name":r["subject_name"],
+            "Marked_status":r["Marked_status"]
+        }
+        data_list.append(data_dict)
+    return data_list
+
+
+def get_lecture(start_time,end_time):
+    day=dt.date.today().day
+    res = supabase.table("time_table").select("subject_name,start_time,end_time,faculty").eq("start_time",start_time).eq("end_time",end_time).execute()
+    for r in res.data
+        data_dict={
+            "subject_name":r["subject_name"],
+            "start_time":r["start_time"],
+            "end_time":r["end_time"],
+            "faculty":r["faculty"]
+        }
+    return data_dict
 
 
 
