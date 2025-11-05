@@ -214,7 +214,9 @@ def get_attendance(roll_no):
 
 
 # ---------- Classes (teacher timetable for the day) ----------
-def classes(username, day):
+def classes(username):
+    today=dt.date.today()
+    day=today.day
     rows = supabase.table("time_table").select("section, subject_name, start_time, end_time").eq("teacher_username", username).eq("day", day).execute()
     data = getattr(rows, "data", None)
     if getattr(rows, "error", None) or not data:
@@ -284,5 +286,6 @@ def update_location(latitude, longitude, username):
     ).eq("teacher_username", username).execute()
     if getattr(res, "error", None):
         print("Error updating location:", res.error)
+
 
 
