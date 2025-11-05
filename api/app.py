@@ -141,8 +141,6 @@ def student_details():
     if not username:
         return jsonify({"error": "User not logged in"}), 401
     student = attendance_supabase.get_student_by_id(username)
-    if 'dob' in student and student['dob']:
-        student['dob'] = student['dob'].strftime("%Y-%m-%d")
     return jsonify(student)
 
 @app.route('/api/attendance/today')
@@ -150,7 +148,7 @@ def attendance_today_route():
     username = session.get('username')
     if not username:
         return jsonify({"error": "User not logged in"}), 401
-    data = attendance_supabase.get_today_attendance_by_username(username)
+    data = attendance_supabase.get_today_attendance(username)
     if data is None:
         return jsonify({"message": "No attendance data found for today"}), 404
     def convert_row(row):
@@ -311,6 +309,7 @@ def verify_and_mark():
 
 if __name__ == '__main__':
     app.run()
+
 
 
 
