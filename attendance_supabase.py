@@ -189,28 +189,16 @@ def update_attendance(attendance: Dict[str, bool], start_time, end_time, date, m
 
 # ---------- Get attendance for a student ----------
 def get_attendance(roll_no):
-    r = supabase.table("student_record").select("name").eq("roll_no", roll_no).limit(1).execute()
+    r = supabase.table("student_record").select("total_classes,semester_no,present").eq("roll_no", roll_no).execute()
     if getattr(r, "error", None) or not getattr(r, "data", None):
         return None
-    name = r.data[0]["name"]
-
-    rows = supabase.table("student_attendance").select(
-        "date, subject_name, start_time, end_time, marked_status"
-    ).eq("roll_no", roll_no).execute()
-    if getattr(rows, "error", None):
-        return {"name": name, "records": []}
-
-    recs = [
-        {
-            "date": str(row["date"]),
-            "subject_name": row["subject_name"],
-            "start_time": str(row["start_time"]),
-            "end_time": str(row["end_time"]),
-            "status": row["marked_status"]
-        }
-        for row in rows.data
-    ]
-    return {"name": name, "records": recs}
+    total=r.data[0]["total_classes"]
+    present=r.data[0]["present"]
+    percent=(present*100)/total
+    return {
+        "semester_number":r.data[0]["semester_no"],
+            "percentage": percent 
+           }
 
 
 # ---------- Classes (teacher timetable for the day) ----------
@@ -286,6 +274,7 @@ def update_location(latitude, longitude, username):
     ).eq("teacher_username", username).execute()
     if getattr(res, "error", None):
         print("Error updating location:", res.error)
+
 
 
 
