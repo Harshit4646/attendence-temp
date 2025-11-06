@@ -302,7 +302,7 @@ def get_attendance(roll_no):
 def get_lecture(start_time,end_time):
     day=dt.date.today().day
     res = supabase.table("time_table").select("subject_name,start_time,end_time,faculty").eq("start_time",start_time).eq("end_time",end_time).execute()
-    for r in res.data
+    for r in res.data:
         data_dict={
             "subject_name":r["subject_name"],
             "start_time":r["start_time"],
@@ -310,6 +310,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
