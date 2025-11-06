@@ -212,10 +212,10 @@ def classes(username):
     data_list=[]
     for d in data:
         data_dict={
-            "section":data["section"],
-            "subject_name":data["subject_name"],
-            "start_time":data["start_time"],
-            "end_time":data["end_time"]
+            "section":d["section"],
+            "subject_name":d["subject_name"],
+            "start_time":d["start_time"],
+            "end_time":d["end_time"]
         }
         data_list.append(data_dict)
     return data_list
@@ -286,14 +286,14 @@ def update_location(latitude, longitude, username):
 
 
 def get_attendance(roll_no):
-    res = supabase.table("student_attendance").select("subject_name,start_time,end_time,Marked_status").eq("roll_no",roll_no).execute()
+    res = supabase.table("student_attendance").select("subject_name,start_time,end_time,marked_status").eq("roll_no",roll_no).execute()
     data_list=[]
     for r in res.data:
         data_dict={
             "start_time":r["start_time"],
             "end_time":r["end_time"],
             "subject_name":r["subject_name"],
-            "Marked_status":r["Marked_status"]
+            "Marked_status":r["marked_status"]
         }
         data_list.append(data_dict)
     return data_list
@@ -310,6 +310,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
