@@ -214,8 +214,8 @@ def classes(username):
         data_dict={
             "section":d["section"],
             "subject_name":d["subject_name"],
-            "start_time":d["start_time"],
-            "end_time":d["end_time"]
+            "start":d["start_time"],
+            "end":d["end_time"]
         }
         data_list.append(data_dict)
     return data_list
@@ -313,6 +313,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
