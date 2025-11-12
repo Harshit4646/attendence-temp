@@ -287,7 +287,7 @@ def update_location(latitude, longitude, username):
 
 def get_attendance(roll_no):
     re = supabase.table("student_record").select("name").eq("roll_no",roll_no).execute()
-    name=re.data["name"]
+    name=re.data[0]["name"]
     res = supabase.table("student_attendance").select("subject_name,start_time,end_time,marked_status").eq("roll_no",roll_no).execute()
     data_list=[]
     for r in res.data:
@@ -313,6 +313,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
