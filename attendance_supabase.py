@@ -204,7 +204,7 @@ def get_semester_attendance(roll_no):
 # ---------- Classes (teacher timetable for the day) ----------
 def classes(username):
     today=dt.date.today()
-    day=today.day
+    day=today.strftime("%A")
     rows = supabase.table("time_table").select("section, subject_name, start_time, end_time").eq("teacher_username", username).eq("day", day).execute()
     data = rows.data
     if getattr(rows,"error", None) or not data:
@@ -313,6 +313,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
