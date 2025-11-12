@@ -206,11 +206,11 @@ def classes(username):
     today=dt.date.today()
     day=today.day
     rows = supabase.table("time_table").select("section, subject_name, start_time, end_time").eq("teacher_username", username).eq("day", day).execute()
-    data = getattr(rows, "data", None)
-    if getattr(rows, "error", None) or not data:
+    data = rows.data
+    if getattr(rows,"error", None) or not data:
         return []
     data_list=[]
-    for d in data:
+    for d in rows.data:
         data_dict={
             "section":d["section"],
             "subject_name":d["subject_name"],
@@ -313,6 +313,7 @@ def get_lecture(start_time,end_time):
             "faculty":r["faculty"]
         }
     return data_dict
+
 
 
 
